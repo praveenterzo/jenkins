@@ -1,0 +1,24 @@
+pipeline {
+agent any
+options { buildDiscarder(logRotator(numToKeepStr: '20')); timestamps() }
+triggers { pollSCM('@weekly') }
+environment { RECIPIENT = 'praveen.m@terzocloud.com' }
+stages {
+stage('Checkout') { steps { checkout scm } }
+stage('Build & Run Script') { steps { sh 'chmod +x script.sh'; sh './
+script.sh' } }
+stage('Archive') { steps { archiveArtifacts artifacts: 'output.txt',
+fingerprint: true } }
+}
+post {
+success { emailext(to: env.RECIPIENT, subject: "SUCCESS: ${env.JOB_NAME} #$
+{env.BUILD_NUMBER}", body: "Build succeeded. See ${env.BUILD_URL}", attachLog:
+true, attachmentsPattern: 'output.txt') }
+failure { emailext(to: env.RECIPIENT, subject: "FAILED: ${env.JOB_NAME} #$
+{env.BUILD_NUMBER}", body: "Build failed. See ${env.BUILD_URL}", attachLog:
+true) }
+unstable { emailext(to: env.RECIPIENT, subject: "UNSTABLE: ${env.JOB_NAME}
+#${env.BUILD_NUMBER}", body: "Unstable. See ${env.BUILD_URL}", attachLog: true,
+attachmentsPattern: 'output.txt') }
+}
+}
