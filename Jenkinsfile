@@ -14,8 +14,13 @@ pipeline {
 
         stage('Run Script') {
             steps {
-                 sh 'chmod +x hello.sh'
-                sh './hello.sh'
+                // Run with bash so pipefail is supported
+                sh '''
+                  #!/usr/bin/env bash
+                  set -euo pipefail
+                  chmod +x hello.sh
+                  ./hello.sh
+                '''
             }
         }
     }
