@@ -14,6 +14,7 @@ pipeline {
 
         stage('Run Script') {
             steps {
+                sudo chmod +x hello.sh
                 sh './hello.sh'
             }
         }
